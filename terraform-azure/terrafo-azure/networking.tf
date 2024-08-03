@@ -84,3 +84,27 @@ resource "azurerm_public_ip" "load_balancer" {
   allocation_method = "static"
   tags = var.default_tags
 }
+
+# Create an azurerm_lb resource, which represents an Azure load balancer
+resource "azurerm_lb" "load_balancer" {
+  name = azurecaf_name.load_balancer.result
+  resource_group_name = azurerm_resource_group.resource_group.name
+  location = azurerm_resource_group.resource_group.location
+  sku = "standard"
+  tags = var.default_tags
+
+
+# Create a frontend IP configuration using the public IP address from the azurerm_public_ip resource
+frontend_ip_configuration {
+    name = "PublicIPAddress"
+    public_ip_address_id = azurerm_public_ip_address.load_balancer.id
+
+}
+}
+
+# Create an azurerm_lb_backend_address_pool resource, which represents a backend address pool for an Azure load balancer
+resource "azurerm_lb_backend_address_pool" "load_balancer" {
+    # Use the ID of the azurerm_lb resource as the load balancer ID
+loadbalancer_id = azurerm_lb.load_balancer.id
+name = "BackendAddressPool"
+}
