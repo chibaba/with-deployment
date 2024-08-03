@@ -75,3 +75,12 @@ dynamic "delegation" {
   
 }
 }
+# Create an azurerm_public_ip resource, which represents a public IP address in Azure which will be used for the load balancer
+resource "azurerm_public_ip" "load_balancer" {
+  name = azurecaf_name.load_balancer_pip.result
+  resource_group_name = azurerm_resource_group.resource_group.name
+  location = azurerm_resource_group.resource_group.location
+  sku = "standard"
+  allocation_method = "static"
+  tags = var.default_tags
+}
