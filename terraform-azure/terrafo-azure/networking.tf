@@ -43,6 +43,35 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 # Create an azurerm_subnet resource for each subnet in the virtual network using the vnet_subnets variable
-resource "" "name" {
+resource "azurerm_subnet" "vnet_subnets" {
+      # Iterate over the vnet_subnets variable
+for_each = var.vnet_subnets
+name = azurecaf_name.virtual_network_subnets[each.key].result
+resource_group_name = azurerm_resource_group.resource_group.name
+virtual_network_name = azurerm_resource_group.vnet.name
+address_prefixes = [each.value.address_prefix]
+    # Use the service endpoints from the vnet_subnets variable if they are provided, otherwise use an empty list
+service_endpoints = try(each.value.service_endpoints, [])
+# Use the private endpoint network policies enabled value from the vnet_subnets variable if it is provided, otherwise use an empty list
+private_endpoint_network_policies_enabled = try(each.value.private_endpoint_network_policies_enabled, [])
+  # Iterate over the service delegations in the vnet_subnets variable
+dynamic "delegation" {
+    for_each = each.value.service_delegations
+    content {
+            # Use the service delegation key as the name
+       name = delegation.key
+             # Iterate over the service delegation values
+       dynamic "service_delegation" {
+         for_each = delegation.value
+         iterator = item
+         content {
+            # Use the service delegation value key as the name
+          name = item.key
+          # Use the service delegation value as the actions
+          actions = item.value
+         }
+       }
+    }
   
+}
 }
