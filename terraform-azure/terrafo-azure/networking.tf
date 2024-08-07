@@ -108,3 +108,20 @@ resource "azurerm_lb_backend_address_pool" "load_balancer" {
 loadbalancer_id = azurerm_lb.load_balancer.id
 name = "BackendAddressPool"
 }
+
+# Create an azurerm_lb_probe resource, which represents a probe for an Azure load balancer
+resource "azurerm_lb_rule" "http_load_balancer_rule" {
+  loadbalancer_id = azurerm_lb.load_balancer.id
+  name  = "HTTPRule"
+  protocol = "Tcp"
+  frontend_port = 80
+  backend_port = 80
+    # Use the ID of the azurerm_lb_probe resource as the probe ID
+probe_id = azurerm_lb_probe.http_load_balancer_probe.id
+  # Use the name of the frontend IP configuration from the azurerm_lb resource
+frontend_frontend_ip_configuration_name = "PublicIPAddress"
+  # Use the ID of the azurerm_lb_backend_address_pool resource as the backend address pool ID
+backend_address_pool_ids = [
+  azurerm_lb_backend_address_pool.load_balancer.id
+]
+}
