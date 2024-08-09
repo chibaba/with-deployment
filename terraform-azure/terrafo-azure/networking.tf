@@ -186,3 +186,11 @@ resource "azurerm_network_security_rule" "AllowSSH" {
   resource_group_name         = azurerm_resource_group.resource_group.name
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
+
+# Create an azurerm_subnet_network_security_group_association resource, which represents an association between a subnet and an Azure Network Security Group (NSG)
+resource "azurerm_subnet_network_security_group_association" "nsg_association" {
+  # Use the ID of the azurerm_subnet resource as the subnet_id
+  subnet_id = azurerm_subnet.vnet_subnets["${var.subnet_for_vms}"].id
+  # Use the ID of the azurerm_network_security_group resource as the network_security_group_id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
