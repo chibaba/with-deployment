@@ -119,9 +119,24 @@ resource "azurerm_lb_rule" "http_load_balancer_rule" {
     # Use the ID of the azurerm_lb_probe resource as the probe ID
 probe_id = azurerm_lb_probe.http_load_balancer_probe.id
   # Use the name of the frontend IP configuration from the azurerm_lb resource
-frontend_frontend_ip_configuration_name = "PublicIPAddress"
+frontend_ip_configuration_name = "PublicIPAddress"
   # Use the ID of the azurerm_lb_backend_address_pool resource as the backend address pool ID
 backend_address_pool_ids = [
   azurerm_lb_backend_address_pool.load_balancer.id
 ]
+}
+
+# Create an azurerm_lb_nat_rule resource, which represents a NAT rule for an Azure load balancer
+resource "azurerm_lb_nat_rule" "sshAccess" {
+# Use the resource group name from the azurerm_resource_group resource
+ resource_group_name = azurerm_resource_group.resource_group.name
+   # Use the ID of the azurerm_lb resource as the load balancer ID
+loadbalancer_id = azurerm_lb.load_balancer.id
+name = "sshAccess"
+protocol = "Tcp"
+frontend_port_start = 2222
+frontend_port_end = 2232
+backend_port = 22
+  # Use the ID of the azurerm_lb_backend_address_pool resource as the backend address pool ID
+
 }
