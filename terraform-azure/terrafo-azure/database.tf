@@ -34,4 +34,31 @@ resource "azurerm_mysql_flexible_server" "mysql_flexible_server" {
   administrator_password = random_password.database_admin_password.result
   backup_retention_days = var.database_backup_retention_days
   delegated_subnet_id = azurerm_subnet.vnet_subnets["${var.subnet_for_database}"].id
+  private_dns_zone_id = azurerm_private_dns_zone.mysql_flexible_server.id
+  sku_name = var.database_sku_name
+  zone = var.database_zone
+  tags = var.default_tags
+
+  depends_on = [ azurerm_private_dns_zone_virtual_network_link.mysql_flexible_server ]
+}
+
+# Create an azurerm_mysql_flexible_server_configuration resource for the MySQL Flexible Server to turn off the require_secure_transport setting
+resource "azurerm_mysql_flexible_server_configuration" "require_secure_transport"{
+    name = "require_secure_transport"
+      resource_group_name = azurerm_resource_group.resource_group.name
+  server_name         = azurerm_mysql_flexible_server.mysql_flexible_server.name
+  value               = "OFF"
+}
+
+# Create a database for the WordPress application on the MySQL Flexible Server
+resource "azurerm_mysql_flexible_database" "wordpress_database" {
+  name                = azurecaf_name.database.result
+  resource_group_name = azurerm_resource_group.resource_group.name
+  server_name         = azurerm_mysql_flexible_server.mysql_flexible_server.name
+  charset             = var.databaqse_charset
+  collation           = var.database_collation
+
+  depends_on = [
+    azurerm_mysql_flexible_server_configuration.require_secure_transport
+  ]
 }
