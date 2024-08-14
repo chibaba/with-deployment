@@ -15,9 +15,10 @@ resource "azurecaf_name" "sa_endpoint" {
 }
 # This block of code creates a resource of type "azurerm_storage_account", which represents an Azure Storage Account
 resource "azurerm_storage_account" "sa" {
+    name                      = azurecaf_name.sa.result
   resource_group_name = azurerm_resource_group.resource_group.name
   location = azurerm_resource_group.resource_group.location
-  access_tier = var.sa_account_tier
+  account_tier = var.sa_account_tier
   account_kind = var.sa.account_kind
   account_replication_type = var.sa.account_replication_type
   enable_https_traffic_only = va.sa.enable_https_traffic_only
@@ -39,7 +40,7 @@ resource "azurerm_storage_share" "nfs_share" {
   name = replace(var.name, "-", "")
   storage_account_name = azurerm_storage_account.sa.name
   quota = var.nfs_share_quota
-  enabled_protocol = var.nfs_enable_protocol
+  enabled_protocol = var.nfs_enbled_protocol
 
   depends_on = [ 
     azurerm_storage_account_network_rules.sa
@@ -68,7 +69,7 @@ resource "azurerm_private_endpoint" "storage_share_endpoint" {
     resource_group_name = azurerm_resource_group.resource_group.name
     location = azurerm_resource_group.resource_group.location
     name = azurecaf_name.sa_endpoint.result
-    subnet_id = azurerm_subnet.vnet_subnets["${var.subnet_for_subnet}"].id
+    subnet_id = azurerm_subnet.vnet_subnets["${var.subnet_for_endpoints}"].id
     tags = var.default_tags
 
     private_dns_zone_group {

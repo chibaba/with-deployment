@@ -12,8 +12,13 @@ resource "azurecaf_name" "database" {
     suffixes = [var.environment_type, module.azure_region.location_short]
     clean_input = true
 }
-# Create an azurerm_private_dns_zone resource for the MySQL Flexible Server
+
 resource "azurerm_private_dns_zone" "mysql_flexible_server" {
+  name                = "${replace(var.name, "-", "")}.mysql.database.azure.com"
+  resource_group_name = azurerm_resource_group.resource_group.name
+}
+# Create an azurerm_private_dns_zone resource for the MySQL Flexible Server
+resource "azurerm_private_dns_zone_virtual_network_link" "mysql_flexible_server" {
   name = "link-${azurerm_virtual_network.vnet.name}"
   private_dns_zone_name = azurerm_private_dns_zone.mysql_flexible_server.name
   virtual_network_id = azurerm_virtual_network.vnet.id
